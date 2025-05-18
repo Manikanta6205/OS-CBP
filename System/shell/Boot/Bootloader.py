@@ -18,6 +18,10 @@ class Bootloader(Frame):
 
         self.master = master
         self.loading_time = loading_time
+        
+        # Flag to control animation loops
+        self.continue_vmw_animation = True
+        self.continue_os_animation = True
 
         # Set the background color to black.
         self.master.configure(background="#000000")
@@ -29,15 +33,21 @@ class Bootloader(Frame):
 
         # Show and update the frames
         def update_vmw_loader(ind):
+            if not self.continue_vmw_animation:
+                return
+                
+            try:
+                ind += 1
 
-            ind += 1
+                if ind >= 50:
+                    ind = 50
 
-            if ind >= 50:
-                ind = 50
-
-            self.loader_bar.configure(width=ind)
-            self.loader_bar.update_idletasks()
-            self.master.after(10, update_vmw_loader, ind)
+                self.loader_bar.configure(width=ind)
+                self.loader_bar.update_idletasks()
+                self.master.after(10, update_vmw_loader, ind)
+            except Exception:
+                # If an error occurs (likely because widget was destroyed), stop the animation
+                self.continue_vmw_animation = False
 
         self.loader_bar = Label(self.master, width=1, height=1, bg="#FFFFFF", borderwidth=0)
 
@@ -54,49 +64,55 @@ class Bootloader(Frame):
 
         # Show and update the frames
         def update_os_loader(ind):
+            if not self.continue_os_animation:
+                return
+                
+            try:
+                frame = self.frames[ind]
+                ind += 1
 
-            frame = self.frames[ind]
-            ind += 1
+                if ind == self.frames_count:
+                    ind = 0
 
-            if ind == self.frames_count:
-                ind = 0
+                rnd = random.randint(8, 24)
 
-            rnd = random.randint(8, 24)
-
-            self.loading.configure(image=frame)
-            self.master.after(rnd, update_os_loader, ind)
+                self.loading.configure(image=frame)
+                self.master.after(rnd, update_os_loader, ind)
+            except Exception:
+                # If an error occurs (likely because widget was destroyed), stop the animation
+                self.continue_os_animation = False
 
         self.loading = Label(self.master, borderwidth=0.1, bg="#000000")
 
         def add_progressbar():
-
             self.loader_bar.place(x=290, y=456)
             self.loader_bar.update_idletasks()
 
         def add_loading():
-
             self.loading.place(relx=.5, y=416, anchor="center")
-            self.master.after(1200, self.Boot_logo.place(relx=.5, y=276, anchor="center"))
+            # Fix: Use lambda to pass keyword arguments to place
+            self.master.after(1200, lambda: self.Boot_logo.place(relx=.5, y=276, anchor="center"))
 
             routines() # Execute the routines (essential for the system)
 
         def quit_os_bootloader():
-
+            self.continue_os_animation = False
             self.Boot_logo.place_forget()
             self.loading.place_forget()
 
             Logger.debug("Finishing...")
 
-            self.master.after(512, self.master.configure(background="#080808"))
+            # Fix: Use lambda to pass keyword arguments to configure
+            self.master.after(512, lambda: self.master.configure(background="#080808"))
 
         def quit_vmw_bootloader():
-
+            self.continue_vmw_animation = False
             self.VMW_logo.place_forget()
             self.loader_bar.place_forget()
 
-        self.master.after(1, update_vmw_loader(0))
+        self.master.after(1, lambda: update_vmw_loader(0))
         self.master.after(1, add_progressbar)
         self.master.after(2000, quit_vmw_bootloader)
-        self.master.after(1, update_os_loader(0))
+        self.master.after(1, lambda: update_os_loader(0))
         self.master.after(2000, add_loading)
         self.master.after(int(self.loading_time - 1000), quit_os_bootloader)

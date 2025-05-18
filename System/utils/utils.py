@@ -60,7 +60,11 @@ def Execute(master: Misc, Loading_time: float, Function, *args):
     from System.core.boot import in_windows
 
     def Open():
-        Function(*args)
+        # Fix: Only pass args if they exist, else call with no arguments
+        if args:
+            Function(*args)
+        else:
+            Function()
 
     def Loading_cursor():
 

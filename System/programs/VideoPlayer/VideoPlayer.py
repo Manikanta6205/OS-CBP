@@ -6,6 +6,7 @@ import platform
 import time
 import threading
 import sys
+from PIL import Image, ImageTk
 
 __author__ = 'TheBigEye'
 __version__ = '2.0'

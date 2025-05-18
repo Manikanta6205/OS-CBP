@@ -41,12 +41,19 @@ def File_manager_programm(master):
     Execute(master, 1000, File_manager, master, True)
 
 def Browser_programm(master):
-    MessageBox(master, "this may not work very well", "Warning", True)
-    #Execute(master, 1200, Browser, master, True) # REMOVED: Browser is not working properly and will be fixed in the future.
-    for widget in master.winfo_children():
-        widget.destroy()
-
-    KRNL_Bug_check(master, "0x00000007" , "#ffffff", "#000000")
+    try:
+        # Import the Browser module
+        from System.programs.Browser.Browser import Browser
+        
+        # Display a warning but continue with launching the browser
+        MessageBox(master, "The browser may not work perfectly as it's still in development", "Warning", True)
+        
+        # Launch the browser
+        Execute(master, 1200, Browser, master, True)
+    except Exception as e:
+        # If there's an error, show a message box with the error
+        MessageBox(master, f"Error launching browser: {str(e)}", "Error", True)
+        Logger.error(f"Failed to launch browser: {str(e)}")
 
 def Map_programm(master):
     Execute(master, 800, Map, master, True)
