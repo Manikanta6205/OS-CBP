@@ -57,6 +57,7 @@ class Desktop(Frame):
         Frame.__init__(self, master)
 
         self.master = master
+        self.sound_popup = None  # Track the sound popup window
 
         # Initialize the desktop
         Desktop.desktop_initializer(self)
@@ -248,9 +249,31 @@ class Desktop(Frame):
             image = self.Sound_button
         )
         
+        def close_sound_popup(event=None):
+            if self.sound_popup is not None and self.sound_popup.winfo_exists():
+                self.sound_popup.destroy()
+                self.sound_popup = None
+                # Unbind the click event from the desktop
+                self.master.unbind("<Button-1>")
+
+        def on_desktop_click(event):
+            # If popup exists and click is outside popup, close it
+            if self.sound_popup is not None and self.sound_popup.winfo_exists():
+                x, y = event.x_root, event.y_root
+                px = self.sound_popup.winfo_rootx()
+                py = self.sound_popup.winfo_rooty()
+                pw = self.sound_popup.winfo_width()
+                ph = self.sound_popup.winfo_height()
+                if not (px <= x <= px+pw and py <= y <= py+ph):
+                    close_sound_popup()
+
         def show_sound_control():
+            # If already open, do nothing
+            if self.sound_popup is not None and self.sound_popup.winfo_exists():
+                return
             # Create popup window for volume control
             popup = Toplevel(self.master)
+            self.sound_popup = popup
             popup.title("Volume Control")
             popup.geometry("250x200")
             popup.resizable(False, False)
@@ -267,7 +290,7 @@ class Desktop(Frame):
                 activeforeground="#FFFFFF",
                 relief="flat",
                 borderwidth=0,
-                command=popup.destroy
+                command=close_sound_popup
             )
             close_btn.place(x=220, y=5)
             
@@ -384,7 +407,14 @@ class Desktop(Frame):
             x = (self.master.winfo_width() // 2) - (width // 2)
             y = (self.master.winfo_height() // 2) - (height // 2)
             popup.geometry(f"+{x}+{y}")
-        
+            # Bind click on desktop to close popup
+            self.master.bind("<Button-1>", on_desktop_click)
+
+            # When popup is closed by any means, cleanup
+            def on_popup_close():
+                close_sound_popup()
+            popup.protocol("WM_DELETE_WINDOW", on_popup_close)
+
         self.Sound_clockbar_button.bind("<Button-1>", lambda event: show_sound_control())
         self.Sound_clockbar_button.bind("<Enter>", lambda event: self.Sound_clockbar_button.config(image = self.Sound_button_light))
         self.Sound_clockbar_button.bind("<Leave>", lambda event: self.Sound_clockbar_button.config(image = self.Sound_button))
