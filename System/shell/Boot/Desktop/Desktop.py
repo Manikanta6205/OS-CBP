@@ -247,7 +247,145 @@ class Desktop(Frame):
             activebackground = "#002C4F",
             image = self.Sound_button
         )
-        self.Sound_clockbar_button.bind("<Button-1>", lambda event: MessageBox(self.master, "In development...", "Info", True))
+        
+        def show_sound_control():
+            # Create popup window for volume control
+            popup = Toplevel(self.master)
+            popup.title("Volume Control")
+            popup.geometry("250x200")
+            popup.resizable(False, False)
+            popup.configure(bg="#002C4F")
+            
+            # Add a close button in the top right
+            close_btn = Button(
+                popup, 
+                text="×", 
+                font=("Arial", 12, "bold"),
+                bg="#002C4F",
+                fg="#F3F3F3",
+                activebackground="#004C82",
+                activeforeground="#FFFFFF",
+                relief="flat",
+                borderwidth=0,
+                command=popup.destroy
+            )
+            close_btn.place(x=220, y=5)
+            
+            # Add a title
+            title_label = Label(
+                popup,
+                text="Volume Control",
+                bg="#002C4F",
+                fg="#F3F3F3",
+                font=("Segoe UI", 12, "bold")
+            )
+            title_label.place(x=20, y=15)
+            
+            # Add volume slider
+            from tkinter import Scale, IntVar
+            volume_var = IntVar()
+            volume_var.set(50)  # Default volume level
+            
+            volume_slider = Scale(
+                popup,
+                from_=0,
+                to=100,
+                orient="horizontal",
+                length=200,
+                variable=volume_var,
+                bg="#002C4F",
+                fg="#F3F3F3",
+                highlightthickness=0,
+                troughcolor="#004C82",
+                activebackground="#004C82"
+            )
+            volume_slider.place(x=25, y=60)
+            
+            # Current volume value display
+            volume_label = Label(
+                popup,
+                text="Current Volume: 50%",
+                bg="#002C4F",
+                fg="#F3F3F3",
+                font=("Segoe UI", 10)
+            )
+            volume_label.place(x=25, y=100)
+            
+            # Function to update the volume label
+            def update_volume_label(event):
+                volume_label.config(text=f"Current Volume: {volume_var.get()}%")
+                
+                # Update system volume if psutil is available
+                if _HAS_PSUTIL:
+                    try:
+                        # This would be where actual system volume control happens
+                        # Note: psutil doesn't actually handle audio, this is a placeholder
+                        # In a real implementation, you would use a library like pycaw on Windows
+                        # or similar libraries for other platforms
+                        pass
+                    except Exception:
+                        pass
+            
+            volume_slider.bind("<Motion>", update_volume_label)
+            
+            # Add mute button
+            mute_var = IntVar()
+            mute_var.set(0)  # Default: not muted
+            
+            def toggle_mute():
+                if mute_var.get() == 1:
+                    # Muted state
+                    mute_button.config(text="Unmute")
+                    volume_slider.config(state="disabled")
+                else:
+                    # Unmuted state
+                    mute_button.config(text="Mute")
+                    volume_slider.config(state="normal")
+            
+            mute_button = Button(
+                popup,
+                text="Mute",
+                font=("Segoe UI", 10),
+                bg="#004C82",
+                fg="#F3F3F3",
+                activebackground="#006CB2",
+                activeforeground="#FFFFFF",
+                relief="flat",
+                borderwidth=1,
+                command=toggle_mute,
+                variable=mute_var,
+                indicatoron=0
+            )
+            mute_button.place(x=25, y=140)
+            
+            # Apply button
+            apply_button = Button(
+                popup,
+                text="Apply",
+                font=("Segoe UI", 10),
+                bg="#004C82",
+                fg="#F3F3F3",
+                activebackground="#006CB2",
+                activeforeground="#FFFFFF",
+                relief="flat",
+                borderwidth=1,
+                command=popup.destroy
+            )
+            apply_button.place(x=150, y=140)
+            
+            # Make sure the popup stays on top
+            popup.transient(self.master)
+            popup.grab_set()
+            
+            # Center the popup on the screen
+            popup.update_idletasks()
+            width = popup.winfo_width()
+            height = popup.winfo_height()
+            x = (self.master.winfo_width() // 2) - (width // 2)
+            y = (self.master.winfo_height() // 2) - (height // 2)
+            popup.geometry(f"+{x}+{y}")
+        
+        self.Sound_clockbar_button.bind("<Button-1>", lambda event: show_sound_control())
         self.Sound_clockbar_button.bind("<Enter>", lambda event: self.Sound_clockbar_button.config(image = self.Sound_button_light))
         self.Sound_clockbar_button.bind("<Leave>", lambda event: self.Sound_clockbar_button.config(image = self.Sound_button))
         Logger.info("Sound volume icon loaded on clockbar")
