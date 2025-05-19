@@ -191,7 +191,18 @@ class Desktop(Frame):
         self.File_manager_taskbar_button.update_idletasks()
         Logger.info("File manager icon loaded on taskbar")
 
-        # Shutdown icon in taskbar (replacing Browser icon)
+        # Browser icon in taskbar
+        self.Browser_taskbar_button = Taskbar_button(
+            self.Taskbar,
+            button_image_path = "Assets/Shell/Programs/Browser/Browser_icon.png",
+            master_image_path = "Assets/Shell/Desktop/Taskbar/Taskbar.png",
+            position = (109, 2)
+        )
+        self.Browser_taskbar_button.bind("<Button-1>", lambda event: Browser_programm(self.master))
+        self.Browser_taskbar_button.update_idletasks()
+        Logger.info("Browser icon loaded on taskbar")
+
+        # Shutdown icon in taskbar
         def shutdown_system():
             """Shutdown the system safely"""
             # Display a shutdown message
@@ -217,7 +228,7 @@ class Desktop(Frame):
         Logger.info("Shutdown icon loaded on taskbar")
 
         # se crea una lista de los botones de la barra de tarea
-        self.taskbar_buttons = [self.Terminal_taskbar_button, self.File_manager_taskbar_button, self.Shutdown_taskbar_button]
+        self.taskbar_buttons = [self.Terminal_taskbar_button, self.File_manager_taskbar_button, self.Browser_taskbar_button, self.Shutdown_taskbar_button]
 
         # los botones se posicionan en la barra de tareas en el orden de la lista
         for i in range(len(self.taskbar_buttons)):
@@ -326,7 +337,7 @@ class Desktop(Frame):
             title_label.place(x=20, y=15)
             
             # Add volume slider
-            from tkinter import Scale, IntVar
+            from tkinter import Scale, IntVar, Checkbutton
             volume_var = IntVar()
             volume_var.set(50)  # Default volume level
             
@@ -372,21 +383,19 @@ class Desktop(Frame):
             
             volume_slider.bind("<Motion>", update_volume_label)
             
-            # Add mute button
+            # Add mute checkbox
             mute_var = IntVar()
             mute_var.set(0)  # Default: not muted
             
             def toggle_mute():
                 if mute_var.get() == 1:
                     # Muted state
-                    mute_button.config(text="Unmute")
                     volume_slider.config(state="disabled")
                 else:
                     # Unmuted state
-                    mute_button.config(text="Mute")
                     volume_slider.config(state="normal")
             
-            mute_button = Button(
+            mute_button = Checkbutton(
                 popup,
                 text="Mute",
                 font=("Segoe UI", 10),
@@ -394,11 +403,11 @@ class Desktop(Frame):
                 fg="#F3F3F3",
                 activebackground="#006CB2",
                 activeforeground="#FFFFFF",
+                selectcolor="#006CB2",
                 relief="flat",
                 borderwidth=1,
-                command=toggle_mute,
                 variable=mute_var,
-                indicatoron=0
+                command=toggle_mute
             )
             mute_button.place(x=25, y=140)
             
