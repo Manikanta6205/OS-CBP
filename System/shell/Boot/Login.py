@@ -11,7 +11,7 @@ Login_entry_color = "#5A7EFC"
 
 def Login(master):  # Display the login window
 
-    global Login_GUI, Login_Button_icon
+    global Login_GUI, Login_Button_icon, Shutdown_Button_icon
 
     master.configure(background = Login_background_color)  # Sets the background to Blue
 
@@ -44,3 +44,33 @@ def Login(master):  # Display the login window
         image = Login_Button_icon
     )
     Login_Button.place(x = 495, y = 384)
+    
+    # Add shutdown button
+    def shutdown_system():
+        """Shutdown the system safely"""
+        # Display a shutdown message
+        shutdown_label = Label(
+            Login,
+            text="Shutting down...",
+            font=("Segoe UI", 14, "bold"),
+            fg="#ffffff",
+            bg="#3b67d6"
+        )
+        shutdown_label.place(x=430, y=250)
+        # Schedule the actual exit after showing the message
+        master.after(1500, master.destroy)
+    
+    # Create shutdown button with power icon
+    Shutdown_Button_icon = Image.setImage("Assets/Shell/Boot/Login/Shutdown.png", (24, 24), "#ff00ff", "#3b67d6")
+    Shutdown_Button = Button(
+        Login,
+        width = 24,
+        height = 24,
+        borderwidth = "0",
+        relief = "flat",
+        bg = "#3b67d6", 
+        activebackground = "#4b77e6",
+        image = Shutdown_Button_icon,
+        command = shutdown_system
+    )
+    Shutdown_Button.place(x = 30, y = 30)  # This places the button at the top-left corner

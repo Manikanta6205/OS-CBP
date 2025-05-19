@@ -52,6 +52,14 @@ class WM_Terminal(Frame):
         def Command_handler(event):
             """Execute the commands"""
 
+            # Add shutdown command handling
+            if self.Terminal_entry.get().strip().lower() == "shutdown":
+                self.Terminal_screen.config(state="normal")
+                self.Terminal_screen.insert_colored("\nShutting down system...\n", "#FF6347")
+                self.Terminal_screen.config(state="disabled")
+                self.master.after(1500, self.master.destroy)
+                return
+                
             self.Terminal_screen.config(state="normal")
             CMD(self.Terminal, self.Terminal_entry, self.Terminal_screen)
             self.Terminal_screen.config(state="disabled")
@@ -190,6 +198,14 @@ class DE_Terminal(Frame):
         def Command_handler(event):
             """Execute the commands"""
 
+            # Add shutdown command handling
+            if self.Terminal_entry.get().strip().lower() == "shutdown":
+                self.Terminal_screen.config(state="normal")
+                self.Terminal_screen.insert_colored("\nShutting down system...\n", "#FF6347")
+                self.Terminal_screen.config(state="disabled")
+                self.master.after(1500, self.master.destroy)
+                return
+                
             self.Terminal_screen.config(state="normal")
             CMD(self.Terminal, self.Terminal_entry, self.Terminal_screen)
             self.Terminal_screen.config(state="disabled")
@@ -357,3 +373,14 @@ class DE_Terminal(Frame):
         if self.draggable:
             # drag n drop using tkinter.dnd module
             drag_it(self.Terminal)
+
+        # Add a shutdown command handler
+        def shutdown_from_terminal():
+            """Shutdown the system from terminal"""
+            self.Terminal_screen.config(state="normal")
+            self.Terminal_screen.insert_colored("\nShutting down system...\n", "#FF6347")
+            self.Terminal_screen.config(state="disabled")
+            self.master.after(1500, self.master.destroy)
+            
+        # Make the terminal recognize the shutdown command
+        self.shutdown_command = shutdown_from_terminal

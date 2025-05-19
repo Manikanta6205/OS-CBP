@@ -330,3 +330,54 @@ class Image:
         image = image.convert("RGBA")
         image = PhotoImage(image)
         return image
+
+    # SVG Support --------------------------------------------------------------------
+    def svg_to_image(svg_path: str, size: tuple = None, bg_color: str = None) -> PhotoImage:
+        """
+        Convert SVG to a PhotoImage that can be used in Tkinter
+        
+        Arguments:
+            `svg_path: [str]` Path to the SVG file
+            `size: [tuple]` The size to render the SVG (width, height)
+            `bg_color: [str]` Background color for the image
+            
+        Returns:
+            `[PhotoImage]` The converted image ready to use in Tkinter
+        """
+        try:
+            from cairosvg import svg2png
+            import io
+            
+            # Read the SVG file
+            with open(svg_path, 'r') as svg_file:
+                svg_data = svg_file.read()
+                
+            # Convert SVG to PNG in memory
+            png_data = io.BytesIO()
+            
+            # If a background color is specified
+            if bg_color:
+                svg2png(bytestring=svg_data, write_to=png_data, 
+                        output_width=size[0] if size else None, 
+                        output_height=size[1] if size else None,
+                        background_color=bg_color)
+            else:
+                svg2png(bytestring=svg_data, write_to=png_data,
+                        output_width=size[0] if size else None,
+                        output_height=size[1] if size else None)
+                
+            png_data.seek(0)
+            
+            # Open the PNG image with PIL
+            img = Img.open(png_data)
+            
+            # Convert to PhotoImage for Tkinter
+            return PhotoImage(img)
+            
+        except ImportError:
+            # If cairosvg is not installed, fallback to a simpler approach
+            # Convert SVG to PNG using another method or provide a fallback image
+            Logger.warning("cairosvg module not installed. SVG rendering requires cairosvg.")
+            # Create a simple icon as a fallback
+            img = Img.new("RGBA", size if size else (24, 24), bg_color if bg_color else "#3b67d6")
+            return PhotoImage(img)

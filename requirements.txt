@@ -1,8 +1,13 @@
+# Core dependencies
+pillow>=9.0.0
+psutil>=5.9.0
+tkintermapview>=1.0.0
+
+# Optional dependencies
+cairosvg>=2.5.2  # For SVG support in the UI
+
 matplotlib
 numpy
-tkinter
-pandas
-pillow
 scipy
 pygame
 sympy

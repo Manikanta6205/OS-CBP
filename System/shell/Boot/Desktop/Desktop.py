@@ -191,19 +191,33 @@ class Desktop(Frame):
         self.File_manager_taskbar_button.update_idletasks()
         Logger.info("File manager icon loaded on taskbar")
 
-        # Browser icon in taskbar
-        self.Browser_taskbar_button = Taskbar_button(
+        # Shutdown icon in taskbar (replacing Browser icon)
+        def shutdown_system():
+            """Shutdown the system safely"""
+            # Display a shutdown message
+            shutdown_label = Label(
+                self.master,
+                text="Shutting down...",
+                font=("Segoe UI", 14, "bold"),
+                fg="#ffffff",
+                bg="#3b67d6"
+            )
+            shutdown_label.place(relx=0.5, rely=0.5, anchor="center")
+            # Schedule the actual exit after showing the message
+            self.master.after(1500, self.master.destroy)
+            
+        self.Shutdown_taskbar_button = Taskbar_button(
             self.Taskbar,
-            button_image_path = "Assets/Shell/Programs/Browser/Browser_icon.png",
+            button_image_path = "Assets/Shell/Desktop/Taskbar/shutdown.png",
             master_image_path = "Assets/Shell/Desktop/Taskbar/Taskbar.png",
             position = (109, 2)
         )
-        self.Browser_taskbar_button.bind("<Button-1>", lambda event: Browser_programm(self.master))
-        self.Browser_taskbar_button.update_idletasks()
-        Logger.info("Browser icon loaded on taskbar")
+        self.Shutdown_taskbar_button.bind("<Button-1>", lambda event: shutdown_system())
+        self.Shutdown_taskbar_button.update_idletasks()
+        Logger.info("Shutdown icon loaded on taskbar")
 
         # se crea una lista de los botones de la barra de tarea
-        self.taskbar_buttons = [self.Terminal_taskbar_button, self.File_manager_taskbar_button, self.Browser_taskbar_button]
+        self.taskbar_buttons = [self.Terminal_taskbar_button, self.File_manager_taskbar_button, self.Shutdown_taskbar_button]
 
         # los botones se posicionan en la barra de tareas en el orden de la lista
         for i in range(len(self.taskbar_buttons)):
